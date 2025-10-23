@@ -1,0 +1,7 @@
+*.exe
+*.exe~
+*.dll
+go.work
+go.work.sum
+.env
+.vscode/
