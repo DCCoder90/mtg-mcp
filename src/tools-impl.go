@@ -1,11 +1,11 @@
+package main
+
 import (
 	"context"
 	"fmt"
 	"log"
-	"reflect"
 
 	"github.com/BlueMonday/go-scryfall"
-	"github.com/google/jsonschema-go/jsonschema"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
