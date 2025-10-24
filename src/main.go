@@ -28,8 +28,7 @@ func main() {
 		Name:    "scryfall-card-search-server",
 		Version: "v1.0.0"}, nil)
 
-	registerSearchTool(server)
-	registerSearchByTextTool(server)
+	registerTools(server)
 
 	log.Println("Starting MCP server for MTG card search...")
 

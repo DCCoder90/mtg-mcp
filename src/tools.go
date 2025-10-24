@@ -48,8 +48,7 @@ func init() {
 }
 
 
-// registerSearchTool handles schema generation and tool registration.
-func registerSearchTool(server *mcp.Server) {
+func registerSearchByNameTool(server *mcp.Server) {
 	searchTool := &mcp.Tool{
 		Name:         "search_card_by_name",
 		Description:  "Searches Scryfall for MTG card details by the card's exact name.",
@@ -61,7 +60,6 @@ func registerSearchTool(server *mcp.Server) {
 	log.Println("Tool 'search_card_by_name' registered.")
 }
 
-// registerSearchByTextTool handles schema generation and tool registration.
 func registerSearchByTextTool(server *mcp.Server) {
 	searchTool := &mcp.Tool{
 		Name:         "search_card_by_text",
@@ -72,4 +70,9 @@ func registerSearchByTextTool(server *mcp.Server) {
 	mcp.AddTool(server, searchTool, searchCardByName)
 
 	log.Println("Tool 'search_card_by_text' registered.")
+}
+
+func registerTools(server *mcp.Server){
+	registerSearchByTextTool(server)
+	registerSearchByNameTool(server)
 }
