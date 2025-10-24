@@ -53,3 +53,7 @@ Update your `claude_desktop_config.json` to include the following under `mcpServ
 ```
 
 This file can be found by going to `Settings` -> `Developer` -> `Edit Config`
+
+## Sources
+
+Card effects and keywords are from the [Magic: The Gathering Comprehensive Rules - September 19, 2025](./MagicCompRules%2020250919.pdf)
