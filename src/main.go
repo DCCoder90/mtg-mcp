@@ -29,6 +29,7 @@ func main() {
 		Version: "v1.0.0"}, nil)
 
 	registerSearchTool(server)
+	registerSearchByTextTool(server)
 
 	log.Println("Starting MCP server for MTG card search...")
 
