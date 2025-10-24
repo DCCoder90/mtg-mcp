@@ -25,7 +25,7 @@ func init() {
 			{
 				Type:        "array",
 				Description: "A list of related items (colors, faces, etc.).",
-				Items:       &jsonschema.Schema{Type: "string"}, 
+				Items: &jsonschema.Schema{},
 			},
 		},
 	}
@@ -72,7 +72,20 @@ func registerSearchByTextTool(server *mcp.Server) {
 	log.Println("Tool 'search_card_by_text' registered.")
 }
 
+func registerSearchByColorTool(server *mcp.Server) {
+	searchTool := &mcp.Tool{
+		Name:         "search_card_by_color",
+		Description:  "Searches Scryfall for MTG card details by the card's colors.",
+		OutputSchema: outputSchema,
+	}
+
+	mcp.AddTool(server, searchTool, searchCardByColor)
+
+	log.Println("Tool 'search_card_by_color' registered.")
+}
+
 func registerTools(server *mcp.Server){
 	registerSearchByTextTool(server)
 	registerSearchByNameTool(server)
+	registerSearchByColorTool(server)
 }

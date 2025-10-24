@@ -13,3 +13,7 @@ type SearchCardResult struct {
 type SearchCardByTextArgs struct {
 	Text string `json:"text" description:"The Oracle text to search for on the card."`
 }
+
+type SearchCardByColorArgs struct {
+	Color string `json:"color" description:"The card color(s) to search for. Use W, U, B, R, G. (e.g., 'W', 'UB', 'M' for multicolor, 'C' for colorless)."`
+}

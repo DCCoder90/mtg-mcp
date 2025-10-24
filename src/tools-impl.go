@@ -119,3 +119,58 @@ func searchCardByText(ctx context.Context, req *mcp.CallToolRequest, args Search
 	log.Printf("Found %d cards matching text: %s", len(result.Cards), args.Text)
 	return nil, SearchCardResult{Cards: result.Cards}, nil
 }
+
+func searchCardByColor(ctx context.Context, req *mcp.CallToolRequest, args SearchCardByColorArgs) (*mcp.CallToolResult, SearchCardResult, error) {
+	if args.Color == "" {
+		log.Println("Error: Received request with empty card color.")
+		return &mcp.CallToolResult{
+			IsError: true,
+			Content: []mcp.Content{&mcp.TextContent{Text: "Error: Card color cannot be empty."}},
+		}, SearchCardResult{}, nil
+	}
+
+	client, err := scryfall.NewClient()
+	if err != nil {
+		log.Printf("Error creating Scryfall client: %v", err)
+		return &mcp.CallToolResult{
+			IsError: true,
+			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("Error initializing card search service: %v", err)}},
+		}, SearchCardResult{}, nil
+	}
+
+	searchQuery := fmt.Sprintf(`color:%s`, args.Color)
+
+	opts := scryfall.SearchCardsOptions{
+		Unique:              scryfall.UniqueModeCards,
+		IncludeMultilingual: false,
+		IncludeExtras:       false,
+		IncludeVariations:   false,
+	}
+
+	log.Printf("Searching Scryfall for card color: %s (Query: %s)", args.Color, searchQuery)
+	result, err := client.SearchCards(ctx, searchQuery, opts)
+	if err != nil {
+		log.Printf("Error searching Scryfall for card color %s: %v", args.Color, err)
+		if scryfallErr, ok := err.(*scryfall.Error); ok {
+			return &mcp.CallToolResult{
+				IsError: true,
+				Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("Scryfall API error searching for color '%s': %s (Status: %d)", args.Color, scryfallErr.Details, scryfallErr.Status)}},
+			}, SearchCardResult{}, nil
+		}
+
+		return &mcp.CallToolResult{
+			IsError: true,
+			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("Error searching for card color '%s': %v", args.Color, err)}},
+		}, SearchCardResult{}, nil
+	}
+
+	if len(result.Cards) == 0 {
+		log.Printf("No cards found matching color: %s", args.Color)
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("No cards found matching the color '%s'.", args.Color)}},
+		}, SearchCardResult{Cards: []scryfall.Card{}}, nil
+	}
+
+	log.Printf("Found %d cards matching color: %s", len(result.Cards), args.Color)
+	return nil, SearchCardResult{Cards: result.Cards}, nil
+}
