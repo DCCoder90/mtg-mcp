@@ -53,7 +53,7 @@ func registerSearchTool(server *mcp.Server) {
 	log.Println("Tool 'search_card_by_name' registered.")
 }
 
-// registerSearchTool handles schema generation and tool registration.
+// registerSearchByTextTool handles schema generation and tool registration.
 func registerSearchByTextTool(server *mcp.Server) {
 	customDateSchema := &jsonschema.Schema{
 		Type:        "string",
