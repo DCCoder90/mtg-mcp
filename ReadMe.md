@@ -4,12 +4,16 @@ This is a simple MCP server for the [Scryfall](https://scryfall.com/docs/api) to
 
 ## Description
 
-Currently this server only exposes a single MCP tool.  See the tools below.
+This server exposes a number of MCP tools to assist with MTG card search and deck building.  The tools and their purposes are listed below.
 
 ## Tools
 
 ### `search_card_by_name`
 This tool takes a card name as input, queries the Scryfall API for cards matching that exact name, and returns the details of the found card(s) in a structured format.
+### `search_card_by_color`
+This tool takes a card color as input, queries the Scryfall API for cards with that color, and returns the details of the found card(s) in a structured format.
+### `search_card_by_text`
+This tool takes a card's text as input, queries the Scryfall API for cards with that text or similar text, and returns the details of the found card(s) in a structured format.
 
 ## Development
 ### Prerequisites
@@ -53,3 +57,7 @@ Update your `claude_desktop_config.json` to include the following under `mcpServ
 ```
 
 This file can be found by going to `Settings` -> `Developer` -> `Edit Config`
+
+## Sources
+
+Card effects and keywords are from the [Magic: The Gathering Comprehensive Rules - September 19, 2025](./MagicCompRules%2020250919.pdf)
