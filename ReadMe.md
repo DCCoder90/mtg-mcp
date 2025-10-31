@@ -9,23 +9,27 @@ This server exposes a number of MCP tools to assist with MTG card search and dec
 ## Tools
 
 ### `search_card_by_name`
+
 This tool takes a card name as input, queries the Scryfall API for cards matching that exact name, and returns the details of the found card(s) in a structured format.
 
 ### `search_card_by_color`
+
 This tool takes a card color as input, queries the Scryfall API for cards with that color, and returns the details of the found card(s) in a structured format.
 
 ### `search_card_by_text`
+
 This tool takes a card's text as input, queries the Scryfall API for cards with that text or similar text, and returns the details of the found card(s) in a structured format.
 
 ### `find_related_cards`
+
 This tool finds cards related to a specified card through various relationship types:
 - **Reprints**: Other printings of the same card 
 - **Tokens**: Token cards created by the card
 - **Mechanics**: Cards sharing similar keyword abilities
-- **Same Artist**: Cards illustrated by the same artist
 - **Same Set**: Other cards from the same expansion
 
 ### `find_card_synergies`
+
 This advanced tool analyzes a card and finds synergistic cards for deck building:
 - **Keyword Synergies**: Cards sharing keyword abilities (flying, trample, etc.)
 - **Theme Synergies**: Cards fitting strategic themes (sacrifice, tokens, graveyard, counters, etc.)
@@ -75,25 +79,68 @@ Pre-built binaries are available for Windows, Linux on the [Releases page](https
     go build .
     ```
 
-### Dependencies
-- github.com/modelcontextprotocol/go-sdk/mcp
-- github.com/BlueMonday/go-scryfall
-- github.com/google/jsonschema-go/jsonschema
-
-### Schema Handling Notes
-The server explicitly defines JSON schemas for certain types returned by the go-scryfall SDK (`scryfall.Date` and various optional slices like `[]scryfall.FrameEffect`, `[]scryfall.Color`, etc.). This is necessary because these types might be marshaled in ways (e.g., date as string, optional slices as null) that differ from the default schema inferred by the MCP SDK, ensuring correct validation of tool output.
-
 ## Running the Server
 
-Execute the compiled binary from your terminal.
+> **Warning**
+> This server does not have built-in authentication. As such, it should not be used in any sensitive environments or exposed to the public internet.
+
+The server supports two [communication transports](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports):
+
+  - **STDIO**: For local execution and SSH-tunneled remote access
+  - **SSE**: For remote HTTP/HTTPS access over the internet
+
+### Local Execution (STDIO Mode)
+
+Execute the compiled binary from your terminal:
+
+```bash
+.\mtg-mcp-windows-amd64.exe
+```
+
+### Remote HTTP Access
+
+For remote access over the internet, run with SSE transport:
+
+```bash
+# Linux
+MCP_TRANSPORT=sse MCP_SSE_PORT=3000 ./mtg-mcp-linux-amd64
+
+# Windows
+$env:MCP_TRANSPORT="sse"; $env:MCP_SSE_PORT="3000"; .\mtg-mcp-windows-amd64.exe
+
+# Docker
+docker run --rm -p 3000:3000 \
+  -e MCP_TRANSPORT=sse \
+  -e MCP_SSE_PORT=3000 \
+  mtg-mcp:latest
+
+```
+
+The server will start on `http://0.0.0.0:3000/sse` and be accessible from anywhere.
 
 ### Using with Claude Desktop
 
-Update your `claude_desktop_config.json` to include the following under `mcpServers` (adjust your path to the executable):
+Update your `claude_desktop_config.json` to include the following under `mcpServers`:
+
+#### Docker
+
+```
+    "mtg-mcp":{
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "dccoder/mtg-mcp:latest",
+	"-e MCP_TRANSPORT=stdio"
+      ]
+    }
+```
+
+#### Local STDIO
 
 **Windows:**
 ```json
-"card_server": {
+"mtg-mcp": {
     "command": "C:\\path\\to\\mtg-mcp-windows-amd64.exe",
     "args": []
 }
@@ -101,13 +148,47 @@ Update your `claude_desktop_config.json` to include the following under `mcpServ
 
 **Linux:**
 ```json
-"card_server": {
+"mtg-mcp": {
     "command": "/path/to/mtg-mcp-linux-amd64",
     "args": []
 }
 ```
 
-This file can be found by going to `Settings` -> `Developer` -> `Edit Config`
+This configuration file can be found by going to `Settings` -\> `Developer` -\> `Edit Config` in Claude Desktop.
+
+## Environment Variables
+
+This server supports the following environment variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MCP_SERVER_NAME` | `scryfall-card-search-server` | Server identification name |
+| `MCP_SERVER_VERSION` | `v1.0.0` | Server version string |
+| `MCP_LOG_TO_FILE` | `true` | Enable/disable file logging |
+| `MCP_LOG_FILE` | `mcp-server.log` | Log file path (when logging enabled) |
+| `MCP_TRANSPORT` | `stdio` | Transport type: `stdio` or `sse` |
+| `MCP_SSE_HOST` | `0.0.0.0` | SSE server bind address (SSE mode only) |
+| `MCP_SSE_PORT` | `3000` | SSE server port (SSE mode only) |
+| `MCP_SSE_PATH` | `/sse` | SSE endpoint path (SSE mode only) |
+| `MCP_SSL_CERT_FILE` | `nil` | Path to TLS certificate file (for https) |
+| `MCP_SSL_KEY_FILE` | `nil` | Path to TLS certificate key (for https) |
+
+**Example with environment variables:**
+
+```json
+{
+  "mcpServers": {
+    "card_server": {
+      "command": "/path/to/mtg-mcp-linux-amd64",
+      "args": [],
+      "env": {
+        "MCP_LOG_TO_FILE": "false",
+        "MCP_SERVER_NAME": "my-mtg-server"
+      }
+    }
+  }
+}
+```
 
 ## Sources
 
