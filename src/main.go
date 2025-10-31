@@ -9,28 +9,45 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-func setupLogging() {
-	logFileName := "mcp-server.log"
-	logFile, err := os.OpenFile(logFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+func setupLogging(config *Config) {
+	if !config.LogToFile {
+		log.SetOutput(os.Stderr)
+		log.Println("Logging to stderr only (file logging disabled)")
+		return
+	}
+
+	logFile, err := os.OpenFile(config.LogFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		log.Printf("Failed to open log file %s: %v. Logging to stderr only.", logFileName, err)
+		log.Printf("Failed to open log file %s: %v. Logging to stderr only.", config.LogFilePath, err)
 	} else {
 		mw := io.MultiWriter(os.Stderr, logFile)
 		log.SetOutput(mw)
-		log.Printf("Logging initialized. Outputting to stderr and %s", logFileName)
+		log.Printf("Logging initialized. Outputting to stderr and %s", config.LogFilePath)
 	}
 }
 
 func main() {
-	setupLogging()
+	config := LoadConfig()
+	setupLogging(config)
 
 	server := mcp.NewServer(&mcp.Implementation{
-		Name:    "scryfall-card-search-server",
-		Version: "v1.0.0"}, nil)
+		Name:    config.ServerName,
+		Version: config.ServerVersion}, nil)
 
 	registerTools(server)
 
-	log.Println("Starting MCP server for MTG card search...")
+	switch config.Transport {
+	case TransportStdio:
+		runStdioServer(server)
+	case TransportSSE:
+		runSSEServer(config, server)
+	default:
+		log.Fatalf("Unknown transport type: %s", config.Transport)
+	}
+}
+
+func runStdioServer(server *mcp.Server) {
+	log.Println("Starting MCP server in STDIO mode for local execution...")
 
 	if err := server.Run(context.Background(), &mcp.StdioTransport{}); err != nil {
 		log.Fatalf("Server failed: %v", err)
@@ -38,3 +55,4 @@ func main() {
 
 	log.Println("Server stopped.")
 }
+
