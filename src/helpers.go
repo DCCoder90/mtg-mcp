@@ -2,12 +2,11 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -129,22 +128,20 @@ func extractThemesFromCard(card scryfall.Card) []string {
 	return themes
 }
 
-// loadCreatureTypes loads creature types from the resource file
+// loadCreatureTypes loads creature types from the embedded resource file
 func loadCreatureTypes() []string {
 	if creatureTypesCache != nil {
 		return creatureTypesCache
 	}
 
-	filePath := filepath.Join("src", "res", "creature-types.txt")
-	file, err := os.Open(filePath)
+	data, err := embeddedResources.ReadFile("res/creature-types.txt")
 	if err != nil {
 		log.Printf("Error loading creature types: %v, using defaults", err)
 		return []string{"Human", "Elf", "Goblin", "Zombie", "Vampire", "Soldier", "Wizard", "Knight", "Dragon", "Angel", "Demon", "Spirit", "Merfolk", "Beast"}
 	}
-	defer file.Close()
 
 	var types []string
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(bytes.NewReader(data))
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line != "" {
@@ -161,23 +158,20 @@ func loadCreatureTypes() []string {
 	return types
 }
 
-// loadThemePatterns loads theme patterns from the resource file
+// loadThemePatterns loads theme patterns from the embedded resource file
 func loadThemePatterns() map[string]ThemePattern {
 	if themePatternsCache != nil {
 		return themePatternsCache
 	}
 
-	filePath := filepath.Join("src", "res", "themepatterns.json")
-	file, err := os.Open(filePath)
+	data, err := embeddedResources.ReadFile("res/themepatterns.json")
 	if err != nil {
 		log.Printf("Error loading theme patterns: %v, using defaults", err)
 		return getDefaultThemePatterns()
 	}
-	defer file.Close()
 
 	var patterns map[string]ThemePattern
-	decoder := json.NewDecoder(file)
-	if err := decoder.Decode(&patterns); err != nil {
+	if err := json.Unmarshal(data, &patterns); err != nil {
 		log.Printf("Error decoding theme patterns: %v", err)
 		return getDefaultThemePatterns()
 	}
@@ -204,14 +198,13 @@ func getDefaultThemePatterns() map[string]ThemePattern {
 	}
 }
 
-// loadKeywordAbilities loads keyword abilities from the resource file
+// loadKeywordAbilities loads keyword abilities from the embedded resource file
 func loadKeywordAbilities() []string {
 	if keywordAbilitiesCache != nil {
 		return keywordAbilitiesCache
 	}
 
-	filePath := filepath.Join("src", "res", "keyword-abilities.txt")
-	file, err := os.Open(filePath)
+	data, err := embeddedResources.ReadFile("res/keyword-abilities.txt")
 	if err != nil {
 		log.Printf("Error loading keyword abilities: %v, using defaults", err)
 		return []string{
@@ -222,10 +215,9 @@ func loadKeywordAbilities() []string {
 			"delve", "suspend", "cascade", "miracle", "overload", "prowess",
 		}
 	}
-	defer file.Close()
 
 	var abilities []string
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(bytes.NewReader(data))
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line != "" {

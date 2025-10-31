@@ -49,13 +49,11 @@ Pre-built binaries are available for Windows, Linux on the [Releases page](https
 **Windows:**
 1. Download the appropriate `.zip` file for your architecture
 2. Extract the archive to your desired location
-3. The `src/res/` directory contains required resource files 
 
 **Linux:**
 1. Download the appropriate `.tar.gz` file for your architecture
 2. Extract: `tar -xzf mtg-mcp-*.tar.gz`
-3. Make executable (if needed): `chmod +x src/mtg-mcp-*`
-4. The `src/res/` directory contains required resource files
+3. Make executable: `chmod +x mtg-mcp-*`
 
 ## Development
 ### Prerequisites
@@ -64,7 +62,10 @@ Pre-built binaries are available for Windows, Linux on the [Releases page](https
 
 ### Building
 
-1.  Navigate to the directory containing `main.go`.
+1.  Navigate to the `src/` directory:
+    ```bash
+    cd src
+    ```
 2.  Ensure dependencies are downloaded:
     ```bash
     go mod tidy
@@ -74,6 +75,12 @@ Pre-built binaries are available for Windows, Linux on the [Releases page](https
     go build .
     ```
 
+The build process automatically embeds all resource files from `src/res/` into the binary using Go's `embed` package, creating a self-contained executable.
+
+### Dependencies
+- github.com/modelcontextprotocol/go-sdk/mcp
+- github.com/BlueMonday/go-scryfall
+- github.com/google/jsonschema-go/jsonschema
 
 ### Schema Handling Notes
 The server explicitly defines JSON schemas for certain types returned by the go-scryfall SDK (`scryfall.Date` and various optional slices like `[]scryfall.FrameEffect`, `[]scryfall.Color`, etc.). This is necessary because these types might be marshaled in ways (e.g., date as string, optional slices as null) that differ from the default schema inferred by the MCP SDK, ensuring correct validation of tool output.
@@ -89,20 +96,18 @@ Update your `claude_desktop_config.json` to include the following under `mcpServ
 **Windows:**
 ```json
 "card_server": {
-    "command": "C:\\path\\to\\mtg-mcp\\src\\mtg-mcp-windows-amd64.exe",
+    "command": "C:\\path\\to\\mtg-mcp-windows-amd64.exe",
     "args": []
 }
 ```
 
-**Linux/macOS:**
+**Linux:**
 ```json
 "card_server": {
-    "command": "/path/to/mtg-mcp/src/mtg-mcp-linux-amd64",
+    "command": "/path/to/mtg-mcp-linux-amd64",
     "args": []
 }
 ```
-
-**Note:** The executable must be run from its location (or with `src/res/` directory accessible) as it loads resource files at runtime.
 
 This configuration file can be found by going to `Settings` -> `Developer` -> `Edit Config` in Claude Desktop.
 
