@@ -135,7 +135,3 @@ jobs:
           tags: |
             dccoder/mtg-mcp:latest
             ghcr.io/${{ steps.owner.outputs.name }}/mtg-mcp:latest
-
-      - name: Inspect
-        run: |
-          docker image inspect dccoder/mtg-mcp:latest
