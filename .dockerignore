@@ -1,0 +1,12 @@
+.git
+.gitignore
+.github
+*.md
+.vscode
+*.exe
+mtg-mcp
+mtg-mcp-*
+*.log
+Dockerfile*
+.dockerignore
+MagicCompRules*.pdf
