@@ -13,13 +13,13 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-//https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#streamable-http
+// https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#streamable-http
 func runSSEServer(config *Config, server *mcp.Server) {
 	addr := fmt.Sprintf("%s:%s", config.SSEHost, config.SSEPort)
 
-	log.Printf("Starting MCP server in SSE mode...")
-	log.Printf("Server listening on http://%s%s", addr, config.SSEPath)
-	log.Printf("Clients can connect to: http://%s%s", addr, config.SSEPath)
+	log.Printf("Starting MCP server in SSE (HTTPS) mode...")
+	log.Printf("Server listening on https://%s%s", addr, config.SSEPath)
+	log.Printf("Clients can connect to: https://%s%s", addr, config.SSEPath)
 
 	handler := mcp.NewSSEHandler(func(r *http.Request) *mcp.Server {
 		return server
@@ -62,8 +62,13 @@ func runSSEServer(config *Config, server *mcp.Server) {
 	}()
 
 	log.Printf("Server listening...")
-	if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("HTTP server failed: %v", err)
+
+	if config.SSLCertFile == "" || config.SSLKeyFile == "" {
+		log.Fatalf("SSLCertFile and SSLKeyFile must be set. (e.g., MCP_SSL_CERT_FILE and MCP_SSL_KEY_FILE env vars)")
+	}
+
+	if err := httpServer.ListenAndServeTLS(config.SSLCertFile, config.SSLKeyFile); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("HTTPS server failed: %v", err)
 	}
 
 	log.Println("Server stopped.")

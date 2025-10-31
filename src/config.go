@@ -21,12 +21,24 @@ type Config struct {
 	SSEHost       string
 	SSEPort       string
 	SSEPath       string
+	SSLCertFile   string
+	SSLKeyFile    string
 }
 
 func LoadConfig() *Config {
 	logToFile := true
 	if val := os.Getenv("MCP_LOG_TO_FILE"); val != "" {
 		logToFile, _ = strconv.ParseBool(val)
+	}
+
+	SSLCertFile := ""
+	if val := os.Getenv("MCP_SSL_CERT_FILE"); val != "" {
+		SSLCertFile = val
+	}
+
+	SSLKeyFile := ""
+	if val := os.Getenv("MCP_SSL_KEY_FILE"); val != "" {
+		SSLKeyFile = val
 	}
 
 	logFilePath := "mcp-server.log"
@@ -75,5 +87,7 @@ func LoadConfig() *Config {
 		SSEHost:       sseHost,
 		SSEPort:       ssePort,
 		SSEPath:       ssePath,
+		SSLCertFile:   SSLCertFile,
+		SSLKeyFile:    SSLKeyFile,
 	}
 }
