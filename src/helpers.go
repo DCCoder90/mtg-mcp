@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 
 	"github.com/BlueMonday/go-scryfall"
 )
@@ -99,34 +101,26 @@ func extractThemesFromCard(card scryfall.Card) []string {
 
 	for theme, pattern := range themePatterns {
 		for _, patternStr := range pattern.Patterns {
-			// Simple substring matching (in production, use regex)
-			if len(oracleText) > 0 {
-				// Check if pattern exists in oracle text (case insensitive)
-				lowerOracle := fmt.Sprintf("%s", oracleText)
-				lowerPattern := fmt.Sprintf("%s", patternStr)
-				if len(lowerOracle) >= len(lowerPattern) {
-					for i := 0; i <= len(lowerOracle)-len(lowerPattern); i++ {
-						match := true
-						for j := 0; j < len(lowerPattern); j++ {
-							c1 := lowerOracle[i+j]
-							c2 := lowerPattern[j]
-							// Simple case-insensitive comparison
-							if c1 >= 'A' && c1 <= 'Z' {
-								c1 = c1 + 32
-							}
-							if c2 >= 'A' && c2 <= 'Z' {
-								c2 = c2 + 32
-							}
-							if c1 != c2 && patternStr[j] != '.' && patternStr[j] != '*' {
-								match = false
-								break
-							}
-						}
-						if match && !contains(themes, theme) {
+			if len(oracleText) > 0 && patternStr != "" {
+				regexPattern := "(?i)" + patternStr
+				re, err := regexp.Compile(regexPattern)
+				if err != nil {
+					// If regex compilation fails, fall back to simple substring matching
+					log.Printf("Invalid regex pattern '%s' for theme '%s', using substring match: %v", patternStr, theme, err)
+					if strings.Contains(strings.ToLower(oracleText), strings.ToLower(patternStr)) {
+						if !contains(themes, theme) {
 							themes = append(themes, theme)
-							break
 						}
 					}
+					continue
+				}
+
+				// Check if pattern matches oracle text
+				if re.MatchString(oracleText) {
+					if !contains(themes, theme) {
+						themes = append(themes, theme)
+					}
+					break // Found a match for this, move on
 				}
 			}
 		}
