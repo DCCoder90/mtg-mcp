@@ -75,8 +75,6 @@ Pre-built binaries are available for Windows, Linux on the [Releases page](https
     go build .
     ```
 
-The build process automatically embeds all resource files from `src/res/` into the binary using Go's `embed` package, creating a self-contained executable.
-
 ### Dependencies
 - github.com/modelcontextprotocol/go-sdk/mcp
 - github.com/BlueMonday/go-scryfall
@@ -109,7 +107,7 @@ Update your `claude_desktop_config.json` to include the following under `mcpServ
 }
 ```
 
-This configuration file can be found by going to `Settings` -> `Developer` -> `Edit Config` in Claude Desktop.
+This file can be found by going to `Settings` -> `Developer` -> `Edit Config`
 
 ## Sources
 
