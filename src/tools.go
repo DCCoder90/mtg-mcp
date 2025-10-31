@@ -2,51 +2,14 @@ package main
 
 import (
 	"log"
-	"reflect"
 
-	"github.com/BlueMonday/go-scryfall"
 	"github.com/google/jsonschema-go/jsonschema"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 var outputSchema *jsonschema.Schema
-
-func init() {
-	customDateSchema := &jsonschema.Schema{
-		Type:        "string",
-		Format:      "date",
-		Description: "The date the card was released (YYYY-MM-DD).",
-	}
-
-	//Ensure array is present even if result is nil
-	customNilArraySchema := &jsonschema.Schema{
-		OneOf: []*jsonschema.Schema{
-			{Type: "null"},
-			{
-				Type:        "array",
-				Description: "A list of related items (colors, faces, etc.).",
-				Items: &jsonschema.Schema{},
-			},
-		},
-	}
-
-	schema, err := jsonschema.For[SearchCardResult](&jsonschema.ForOptions{
-		TypeSchemas: map[reflect.Type]*jsonschema.Schema{
-			reflect.TypeOf(scryfall.Date{}):        customDateSchema,
-			reflect.TypeOf([]scryfall.FrameEffect{}): customNilArraySchema,
-			reflect.TypeOf([]scryfall.CardFace{}):    customNilArraySchema,
-			reflect.TypeOf([]scryfall.Color{}):       customNilArraySchema,
-			reflect.TypeOf([]scryfall.RelatedCard{}): customNilArraySchema,
-		},
-	})
-	if err != nil {
-		log.Fatalf("Failed to generate output schema: %v", err)
-	}
-
-	outputSchema = schema
-	log.Println("Common Scryfall output schema generated.")
-}
-
+var relatedCardsSchema *jsonschema.Schema
+var synergiesSchema *jsonschema.Schema
 
 func registerSearchByNameTool(server *mcp.Server) {
 	searchTool := &mcp.Tool{
@@ -84,8 +47,34 @@ func registerSearchByColorTool(server *mcp.Server) {
 	log.Println("Tool 'search_card_by_color' registered.")
 }
 
-func registerTools(server *mcp.Server){
+func registerFindRelatedCardsTool(server *mcp.Server) {
+	relatedCardsTool := &mcp.Tool{
+		Name:         "find_related_cards",
+		Description:  "Find cards related to a given card, including reprints, tokens created, cards with similar mechanics, or from the same set.",
+		OutputSchema: relatedCardsSchema,
+	}
+
+	mcp.AddTool(server, relatedCardsTool, findRelatedCards)
+
+	log.Println("Tool 'find_related_cards' registered.")
+}
+
+func registerFindCardSynergiesTool(server *mcp.Server) {
+	synergiesTool := &mcp.Tool{
+		Name:         "find_card_synergies",
+		Description:  "Find cards that synergize with provided card based on keywords, themes, and mechanics. The user can also specify a theme to focus the search.",
+		OutputSchema: synergiesSchema,
+	}
+
+	mcp.AddTool(server, synergiesTool, findCardSynergies)
+
+	log.Println("Tool 'find_card_synergies' registered.")
+}
+
+func registerTools(server *mcp.Server) {
 	registerSearchByTextTool(server)
 	registerSearchByNameTool(server)
 	registerSearchByColorTool(server)
+	registerFindRelatedCardsTool(server)
+	registerFindCardSynergiesTool(server)
 }

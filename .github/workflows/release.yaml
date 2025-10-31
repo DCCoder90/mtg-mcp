@@ -1,0 +1,77 @@
+name: Build and Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    name: Build Release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: windows
+            goarch: amd64
+            output: mtg-mcp-windows-amd64.exe
+          - goos: windows
+            goarch: arm64
+            output: mtg-mcp-windows-arm64.exe
+          - goos: linux
+            goarch: amd64
+            output: mtg-mcp-linux-amd64
+          - goos: linux
+            goarch: arm64
+            output: mtg-mcp-linux-arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Install dependencies
+        run: go mod tidy
+        working-directory: ./src
+
+      - name: Build binary
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          go build -v -ldflags="-s -w" -o ${{ matrix.output }} .
+        working-directory: ./src
+
+      - name: Create archive
+        run: |
+          cd src
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            zip ../mtg-mcp-${{ matrix.goos }}-${{ matrix.goarch }}.zip ${{ matrix.output }}
+          else
+            tar -czf ../mtg-mcp-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz ${{ matrix.output }}
+          fi
+
+      - name: Upload release asset (Windows)
+        if: matrix.goos == 'windows'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./mtg-mcp-${{ matrix.goos }}-${{ matrix.goarch }}.zip
+          asset_name: mtg-mcp-${{ matrix.goos }}-${{ matrix.goarch }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload release asset (Linux)
+        if: matrix.goos != 'windows'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./mtg-mcp-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz
+          asset_name: mtg-mcp-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz
+          asset_content_type: application/gzip

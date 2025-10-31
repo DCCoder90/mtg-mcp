@@ -1,0 +1,74 @@
+{
+    "sacrifice": {
+        "patterns": ["sacrifice", "dies", "when.*enters the graveyard"],
+        "synergyQuery": "(oracle:\"when a creature dies\" OR oracle:\"whenever you sacrifice\" OR oracle:\"sacrifice a creature\")",
+        "synergyDescription": "Cards that benefit from or enable creature sacrifice",
+        "synergyType": "Sacrifice Synergy"
+    },
+    "tokens": {
+        "patterns": ["create.*token", "token"],
+        "synergyQuery": "(oracle:\"create.*token\" OR oracle:\"for each creature you control\")",
+        "synergyDescription": "Cards that create or benefit from tokens",
+        "synergyType": "Token Synergy"
+    },
+    "graveyard": {
+        "patterns": ["graveyard", "from your graveyard", "return.*from.*graveyard"],
+        "synergyQuery": "(oracle:\"from your graveyard\" OR oracle:\"return.*from.*graveyard\" OR oracle:\"mill\")",
+        "synergyDescription": "Cards that interact with the graveyard",
+        "synergyType": "Graveyard Synergy"
+    },
+    "counters": {
+        "patterns": ["+1/+1 counter", "-1/-1 counter", "counter on"],
+        "synergyQuery": "(oracle:\"+1/+1 counter\" OR oracle:\"with a counter\" OR oracle:\"counter on\")",
+        "synergyDescription": "Cards that use +1/+1 counters or other counters",
+        "synergyType": "Counter Synergy"
+    },
+    "card draw": {
+        "patterns": ["draw a card", "draw cards"],
+        "synergyQuery": "(oracle:\"draw a card\" OR oracle:\"draw cards\" OR oracle:\"draw two\")",
+        "synergyDescription": "Cards that provide card advantage",
+        "synergyType": "Card Draw Synergy"
+    },
+    "life gain": {
+        "patterns": ["gain.*life", "you gain"],
+        "synergyQuery": "(oracle:\"gain.*life\" OR oracle:\"you gain\" OR oracle:\"whenever you gain life\")",
+        "synergyDescription": "Cards that gain life or benefit from lifegain",
+        "synergyType": "Lifegain Synergy"
+    },
+    "discard": {
+        "patterns": ["discard", "discards"],
+        "synergyQuery": "(oracle:\"discard\" OR oracle:\"discards a card\")",
+        "synergyDescription": "Cards that benefit from or enable discard",
+        "synergyType": "Discard Synergy"
+    },
+    "mill": {
+        "patterns": ["mill", "put.*top.*cards.*into.*graveyard"],
+        "synergyQuery": "(oracle:\"mill\" OR oracle:\"put.*cards.*from.*library.*into.*graveyard\")",
+        "synergyDescription": "Cards that mill cards from libraries",
+        "synergyType": "Mill Synergy"
+    },
+    "ramp": {
+        "patterns": ["search.*land", "add.*mana"],
+        "synergyQuery": "(oracle:\"search your library for.*land\" OR oracle:\"add.*mana\")",
+        "synergyDescription": "Cards that provide mana acceleration",
+        "synergyType": "Ramp Synergy"
+    },
+    "removal": {
+        "patterns": ["destroy target", "exile target"],
+        "synergyQuery": "(oracle:\"destroy target\" OR oracle:\"exile target\" OR oracle:\"damage to any target\")",
+        "synergyDescription": "Cards that remove threats",
+        "synergyType": "Removal Synergy"
+    },
+    "burn": {
+        "patterns": ["damage to any target", "damage to target"],
+        "synergyQuery": "(oracle:\"damage to any target\" OR oracle:\"damage to target creature\")",
+        "synergyDescription": "Cards that deal direct damage",
+        "synergyType": "Burn Synergy"
+    },
+    "tribal": {
+        "patterns": ["creature type"],
+        "synergyQuery": "",
+        "synergyDescription": "Cards that share creature types or tribal synergies",
+        "synergyType": "Tribal Synergy"
+    }
+}
