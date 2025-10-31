@@ -10,10 +10,52 @@ This server exposes a number of MCP tools to assist with MTG card search and dec
 
 ### `search_card_by_name`
 This tool takes a card name as input, queries the Scryfall API for cards matching that exact name, and returns the details of the found card(s) in a structured format.
+
 ### `search_card_by_color`
 This tool takes a card color as input, queries the Scryfall API for cards with that color, and returns the details of the found card(s) in a structured format.
+
 ### `search_card_by_text`
 This tool takes a card's text as input, queries the Scryfall API for cards with that text or similar text, and returns the details of the found card(s) in a structured format.
+
+### `find_related_cards`
+This tool finds cards related to a specified card through various relationship types:
+- **Reprints**: Other printings of the same card 
+- **Tokens**: Token cards created by the card
+- **Mechanics**: Cards sharing similar keyword abilities
+- **Same Artist**: Cards illustrated by the same artist
+- **Same Set**: Other cards from the same expansion
+
+### `find_card_synergies`
+This advanced tool analyzes a card and finds synergistic cards for deck building:
+- **Keyword Synergies**: Cards sharing keyword abilities (flying, trample, etc.)
+- **Theme Synergies**: Cards fitting strategic themes (sacrifice, tokens, graveyard, counters, etc.)
+- **Tribal Synergies**: Cards sharing creature types
+- **Color Identity**: Cards matching color requirements
+
+The tool automatically extracts themes from card text.
+
+## Installation
+
+### Download Pre-built Binaries
+
+Pre-built binaries are available for Windows, Linux on the [Releases page](https://github.com/DCCoder90/mtg-mcp/releases).
+
+#### Available Platforms:
+- **Windows**: `mtg-mcp-windows-amd64.zip` (x64) / `mtg-mcp-windows-arm64.zip` (ARM64)
+- **Linux**: `mtg-mcp-linux-amd64.tar.gz` (x64) / `mtg-mcp-linux-arm64.tar.gz` (ARM64)
+
+#### Installation Steps:
+
+**Windows:**
+1. Download the appropriate `.zip` file for your architecture
+2. Extract the archive to your desired location
+3. The `src/res/` directory contains required resource files 
+
+**Linux:**
+1. Download the appropriate `.tar.gz` file for your architecture
+2. Extract: `tar -xzf mtg-mcp-*.tar.gz`
+3. Make executable (if needed): `chmod +x src/mtg-mcp-*`
+4. The `src/res/` directory contains required resource files
 
 ## Development
 ### Prerequisites
@@ -33,11 +75,6 @@ This tool takes a card's text as input, queries the Scryfall API for cards with 
     ```
 
 
-### Dependencies
-- github.com/modelcontextprotocol/go-sdk/mcp
-- github.com/BlueMonday/go-scryfall
-- github.com/google/jsonschema-go/jsonschema
-
 ### Schema Handling Notes
 The server explicitly defines JSON schemas for certain types returned by the go-scryfall SDK (`scryfall.Date` and various optional slices like `[]scryfall.FrameEffect`, `[]scryfall.Color`, etc.). This is necessary because these types might be marshaled in ways (e.g., date as string, optional slices as null) that differ from the default schema inferred by the MCP SDK, ensuring correct validation of tool output.
 
@@ -48,15 +85,26 @@ Execute the compiled binary from your terminal.
 ### Using with Claude Desktop
 
 Update your `claude_desktop_config.json` to include the following under `mcpServers` (adjust your path to the executable):
+
+**Windows:**
 ```json
-        "card_server": {
-            "command": "c:\\Users\\awesomeguy\\Desktop\\mtgmcp\\main.exe",
-            "args": [
-            ]
-        }
+"card_server": {
+    "command": "C:\\path\\to\\mtg-mcp\\src\\mtg-mcp-windows-amd64.exe",
+    "args": []
+}
 ```
 
-This file can be found by going to `Settings` -> `Developer` -> `Edit Config`
+**Linux/macOS:**
+```json
+"card_server": {
+    "command": "/path/to/mtg-mcp/src/mtg-mcp-linux-amd64",
+    "args": []
+}
+```
+
+**Note:** The executable must be run from its location (or with `src/res/` directory accessible) as it loads resource files at runtime.
+
+This configuration file can be found by going to `Settings` -> `Developer` -> `Edit Config` in Claude Desktop.
 
 ## Sources
 

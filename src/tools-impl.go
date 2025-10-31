@@ -210,7 +210,7 @@ func findCardSynergies(ctx context.Context, req *mcp.CallToolRequest, args FindC
 		}, FindCardSynergiesResult{}, nil
 	}
 
-	// Get the main card
+	// Get main card
 	searchQuery := fmt.Sprintf(`name:"%s"`, args.CardName)
 	opts := scryfall.SearchCardsOptions{
 		Unique:              scryfall.UniqueModeCards,
